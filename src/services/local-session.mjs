@@ -1,12 +1,13 @@
 import Browser from 'webextension-polyfill'
 import { initSession } from './init-session.mjs'
 import { getUserConfig } from '../config/index.mjs'
+import { apiModeToModelName } from '../utils/model-name-convert.mjs'
 
 export const initDefaultSession = async () => {
   const config = await getUserConfig()
   return initSession({
     sessionName: new Date().toLocaleString(),
-    modelName: config.modelName,
+    modelName: config.apiMode ? apiModeToModelName(config.apiMode) : config.modelName,
     apiMode: config.apiMode,
     autoClean: false,
     extraCustomModelName: config.customModelName,
