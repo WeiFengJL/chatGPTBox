@@ -314,6 +314,16 @@ async function prepareForRightClickMenu() {
         />,
         container,
       )
+    } else if (message.type === 'OPEN_SIDE_PANEL') {
+      // Handle side panel opening with user gesture context
+      try {
+        // eslint-disable-next-line no-undef
+        await chrome.sidePanel.open({
+          tabId: (await Browser.tabs.query({ active: true, currentWindow: true }))[0].id,
+        })
+      } catch (error) {
+        console.error('Failed to open side panel:', error)
+      }
     }
   })
 }
