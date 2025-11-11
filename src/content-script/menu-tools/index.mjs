@@ -62,8 +62,11 @@ export const config = {
     action: async (fromBackground, tab) => {
       console.debug('action is from background', fromBackground)
       if (fromBackground) {
-        // eslint-disable-next-line no-undef
-        chrome.sidePanel.open({ windowId: tab.windowId, tabId: tab.id })
+        // Send message to content script to handle side panel opening with user gesture
+        Browser.tabs.sendMessage(tab.id, {
+          type: 'OPEN_SIDE_PANEL',
+          data: {},
+        })
       } else {
         // side panel is not supported
       }
