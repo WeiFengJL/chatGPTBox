@@ -1305,11 +1305,21 @@
     cursor: pointer;
     align-items: center;
     z-index: 0;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
 
     svg {
       z-index: 0;
       color: var(--font-color);
       background-color: var(--theme-color);
+    }
+  }
+
+  .gpt-util-icon:hover {
+    opacity: 0.9;
+
+    svg {
+      color: var(--font-active-color);
     }
   }
 
