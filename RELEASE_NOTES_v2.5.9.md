@@ -2,22 +2,11 @@
 
 ## 🚀 Features & Improvements
 
-### API Mode Custom Model Configuration
-- **Enhanced Custom Model Support**: Added comprehensive support for custom models in API mode
-- **Flexible Configuration**: Users can now configure:
-  - Custom model names
-  - Model IDs  
-  - Display names
-- **Improved User Experience**: More intuitive interface for managing custom AI models
+✨ API 模式现在支持自定义模型配置，可自定义名称、模型 ID、显示名称
 
-### Configuration Updates
-- **Streamlined API Mode Settings**: Removed default custom model options from general configuration
-- **Cleaner Interface**: Simplified the configuration panel to reduce clutter and improve usability
+✨ 在聊天窗口中添加了隐藏侧边栏的功能
 
-### Chat Interface Enhancements
-- **Hide Sidebar Feature**: Added functionality to hide the sidebar in chat windows
-- **Better Space Management**: Users can now maximize chat area by hiding unnecessary UI elements
-- **Improved Focus Mode**: Enhanced reading and interaction experience with collapsible sidebars
+🐛 删除了常规设置中不必要的默认自定义模型选项
 
 ## 📦 Build Information
 
