@@ -38,10 +38,13 @@ export async function cropText(
   const userConfig = await getUserConfig()
   if (!userConfig.cropText) return text
 
+  // Extract custom model name from apiMode if available, otherwise use userConfig.customModelName
+  const customModelName =
+    userConfig.apiMode?.modelId || userConfig.apiMode?.customName || userConfig.customModelName
   const k = modelNameToDesc(
     userConfig.apiMode ? apiModeToModelName(userConfig.apiMode) : userConfig.modelName,
     null,
-    userConfig.customModelName,
+    customModelName,
     userConfig.apiMode,
   ).match(/[- (]*([0-9]+)k/)?.[1]
   if (k) {
