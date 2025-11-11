@@ -100,6 +100,21 @@
     flex-grow: 1;
     border: 1px solid var(--theme-border-color);
     background-color: var(--theme-color);
+    position: relative;
+  }
+
+  .show-sidebar-button-container {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    z-index: 10;
+  }
+
+  .show-sidebar-button {
+    min-width: auto;
+    padding: 8px 12px;
+    font-size: 12px;
+    white-space: nowrap;
   }
 
   .normal-button {

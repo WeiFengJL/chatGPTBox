@@ -20,6 +20,7 @@ import FileSaver from 'file-saver'
 function App() {
   const { t } = useTranslation()
   const [collapsed, setCollapsed] = useState(true)
+  const [sidebarVisible, setSidebarVisible] = useState(true)
   const config = useConfig(null, false)
   const [sessions, setSessions] = useState([])
   const [sessionId, setSessionId] = useState(null)
@@ -69,6 +70,13 @@ function App() {
   }, [config])
 
   useEffect(() => {
+    // Initialize sidebar visibility from config
+    if (config.independentPanelSidebarVisible !== undefined) {
+      setSidebarVisible(config.independentPanelSidebarVisible)
+    }
+  }, [config.independentPanelSidebarVisible])
+
+  useEffect(() => {
     // eslint-disable-next-line
     ;(async () => {
       if (sessions.length > 0) {
@@ -83,6 +91,13 @@ function App() {
 
   const toggleSidebar = () => {
     setCollapsed(!collapsed)
+  }
+
+  const toggleSidebarVisibility = async () => {
+    const newVisibility = !sidebarVisible
+    setSidebarVisible(newVisibility)
+    // Save to config
+    await Browser.storage.local.set({ independentPanelSidebarVisible: newVisibility })
   }
 
   const createNewChat = async () => {
@@ -106,66 +121,86 @@ function App() {
   return (
     <div className="IndependentPanel">
       <div className="chat-container">
-        <div className={`chat-sidebar ${collapsed ? 'collapsed' : ''}`}>
-          <div className="chat-sidebar-button-group">
-            <button className="normal-button" onClick={toggleSidebar}>
-              {collapsed ? t('Pin') : t('Unpin')}
-            </button>
-            <button className="normal-button" onClick={createNewChat}>
-              {t('New Chat')}
-            </button>
-            <button className="normal-button" onClick={exportConversations}>
-              {t('Export')}
-            </button>
+        {sidebarVisible && (
+          <div className={`chat-sidebar ${collapsed ? 'collapsed' : ''}`}>
+            <div className="chat-sidebar-button-group">
+              <button className="normal-button" onClick={toggleSidebar}>
+                {collapsed ? t('Pin') : t('Unpin')}
+              </button>
+              <button className="normal-button" onClick={createNewChat}>
+                {t('New Chat')}
+              </button>
+              <button className="normal-button" onClick={exportConversations}>
+                {t('Export')}
+              </button>
+              <button
+                className="normal-button"
+                onClick={toggleSidebarVisibility}
+                title={t('Hide Sidebar')}
+              >
+                {t('Hide')}
+              </button>
+            </div>
+            <hr />
+            <div className="chat-list">
+              {sessions.map(
+                (
+                  session,
+                  index, // TODO editable session name
+                ) => (
+                  <button
+                    key={index}
+                    className={`normal-button ${sessionId === session.sessionId ? 'active' : ''}`}
+                    style="display: flex; align-items: center; justify-content: space-between;"
+                    onClick={() => {
+                      setSessionIdSafe(session.sessionId)
+                    }}
+                  >
+                    {session.sessionName}
+                    <span className="gpt-util-group">
+                      <DeleteButton
+                        size={14}
+                        text={t('Delete Conversation')}
+                        onConfirm={() =>
+                          deleteSession(session.sessionId).then((sessions) => {
+                            setSessions(sessions)
+                            setSessionIdSafe(sessions[0].sessionId)
+                          })
+                        }
+                      />
+                    </span>
+                  </button>
+                ),
+              )}
+            </div>
+            <hr />
+            <div className="chat-sidebar-button-group">
+              <ConfirmButton text={t('Clear conversations')} onConfirm={clearConversations} />
+              <button
+                className="normal-button"
+                onClick={() => {
+                  openUrl(Browser.runtime.getURL('popup.html'))
+                }}
+              >
+                {t('Settings')}
+              </button>
+            </div>
           </div>
-          <hr />
-          <div className="chat-list">
-            {sessions.map(
-              (
-                session,
-                index, // TODO editable session name
-              ) => (
-                <button
-                  key={index}
-                  className={`normal-button ${sessionId === session.sessionId ? 'active' : ''}`}
-                  style="display: flex; align-items: center; justify-content: space-between;"
-                  onClick={() => {
-                    setSessionIdSafe(session.sessionId)
-                  }}
-                >
-                  {session.sessionName}
-                  <span className="gpt-util-group">
-                    <DeleteButton
-                      size={14}
-                      text={t('Delete Conversation')}
-                      onConfirm={() =>
-                        deleteSession(session.sessionId).then((sessions) => {
-                          setSessions(sessions)
-                          setSessionIdSafe(sessions[0].sessionId)
-                        })
-                      }
-                    />
-                  </span>
-                </button>
-              ),
-            )}
-          </div>
-          <hr />
-          <div className="chat-sidebar-button-group">
-            <ConfirmButton text={t('Clear conversations')} onConfirm={clearConversations} />
-            <button
-              className="normal-button"
-              onClick={() => {
-                openUrl(Browser.runtime.getURL('popup.html'))
-              }}
-            >
-              {t('Settings')}
-            </button>
-          </div>
-        </div>
+        )}
         <div className="chat-content">
           {renderContent && currentSession && currentSession.conversationRecords && (
             <div className="chatgptbox-container" style="height:100%;">
+              {!sidebarVisible && (
+                <div className="show-sidebar-button-container">
+                  <button
+                    className="normal-button show-sidebar-button"
+                    onClick={toggleSidebarVisibility}
+                    title={t('Show Sidebar')}
+                  >
+                    {t('Show Sidebar')}
+                  </button>
+                </div>
+              )}
               <ConversationCard
                 session={currentSession}
                 notClampSize={true}
