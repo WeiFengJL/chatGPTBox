@@ -7,6 +7,17 @@ import Draggable from 'react-draggable'
 import { useClampWindowSize } from '../../hooks/use-clamp-window-size'
 import { useTranslation } from 'react-i18next'
 import { useConfig } from '../../hooks/use-config.mjs'
+import {
+  createSession,
+  deleteSession,
+  getSessions,
+  resetSessions,
+  getSession,
+} from '../../services/local-session.mjs'
+import ConfirmButton from '../ConfirmButton'
+import DeleteButton from '../DeleteButton'
+import Browser from 'webextension-polyfill'
+import FileSaver from 'file-saver'
 
 // const logo = Browser.runtime.getURL('logo.png')
 
@@ -19,6 +30,11 @@ function FloatingToolbar(props) {
   const [closeable, setCloseable] = useState(props.closeable)
   const [position, setPosition] = useState(getClientPosition(props.container))
   const [virtualPosition, setVirtualPosition] = useState({ x: 0, y: 0 })
+  const [sidebarVisible, setSidebarVisible] = useState(true)
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true)
+  const [sessions, setSessions] = useState([])
+  const [currentSessionId, setCurrentSessionId] = useState(null)
+  const [currentSession, setCurrentSession] = useState(null)
   const windowSize = useClampWindowSize([750, 1500], [0, Infinity])
   const config = useConfig(() => {
     setRender(true)
@@ -47,6 +63,70 @@ function FloatingToolbar(props) {
     }
   }, [])
 
+  useEffect(() => {
+    // Initialize sidebar visibility from config
+    if (config.floatingWindowSidebarVisible !== undefined) {
+      setSidebarVisible(config.floatingWindowSidebarVisible)
+    }
+  }, [config.floatingWindowSidebarVisible])
+
+  useEffect(() => {
+    // Initialize sessions for floating window
+    if (render) {
+      getSessions().then((sessions) => {
+        setSessions(sessions)
+        if (sessions.length > 0 && !currentSessionId) {
+          setCurrentSessionId(sessions[0].sessionId)
+          setCurrentSession(sessions[0])
+        }
+      })
+    }
+  }, [render, currentSessionId])
+
+  const toggleSidebarVisibility = async () => {
+    const newVisibility = !sidebarVisible
+    setSidebarVisible(newVisibility)
+    await Browser.storage.local.set({ floatingWindowSidebarVisible: newVisibility })
+  }
+
+  const toggleSidebarCollapse = () => {
+    setSidebarCollapsed(!sidebarCollapsed)
+  }
+
+  const createNewChat = async () => {
+    const { session, currentSessions } = await createSession()
+    setSessions(currentSessions)
+    setCurrentSessionId(session.sessionId)
+    setCurrentSession(session)
+  }
+
+  const exportConversations = async () => {
+    const sessions = await getSessions()
+    const blob = new Blob([JSON.stringify(sessions, null, 2)], { type: 'text/json;charset=utf-8' })
+    FileSaver.saveAs(blob, 'conversations.json')
+  }
+
+  const clearConversations = async () => {
+    const sessions = await resetSessions()
+    setSessions(sessions)
+    setCurrentSessionId(sessions[0].sessionId)
+    setCurrentSession(sessions[0])
+  }
+
+  const switchSession = async (sessionId) => {
+    setCurrentSessionId(sessionId)
+    const { session } = await getSession(sessionId)
+    setCurrentSession(session)
+  }
+
+  const deleteSessionHandler = async (sessionId) => {
+    const sessions = await deleteSession(sessionId)
+    setSessions(sessions)
+    if (currentSessionId === sessionId && sessions.length > 0) {
+      setCurrentSessionId(sessions[0].sessionId)
+      setCurrentSession(sessions[0])
+    }
+  }
   if (!render) return <div />
 
   if (triggered || (prompt && !selection)) {
@@ -95,17 +175,138 @@ function FloatingToolbar(props) {
           <div
             className="chatgptbox-selection-window"
             style={{
-              width: windowSize[0] * 0.6 + 'px',
+              width: sidebarVisible ? windowSize[0] * 0.6 + 'px' : windowSize[0] * 0.4 + 'px',
               display: 'flex',
               minHeight: '500px',
             }}
           >
+            {sidebarVisible && (
+              <div
+                className={`chat-sidebar ${sidebarCollapsed ? 'collapsed' : ''}`}
+                style={{
+                  width: sidebarCollapsed ? '60px' : '250px',
+                  minWidth: sidebarCollapsed ? '60px' : '250px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  backgroundColor: 'var(--theme-color)',
+                  border: '1px solid var(--theme-border-color)',
+                  transition: 'width 0.3s, min-width 0.3s',
+                }}
+              >
+                <div
+                  className="chat-sidebar-button-group"
+                  style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}
+                >
+                  <button
+                    className="normal-button"
+                    onClick={toggleSidebarCollapse}
+                    title={sidebarCollapsed ? t('Pin') : t('Unpin')}
+                  >
+                    {sidebarCollapsed ? t('Pin') : t('Unpin')}
+                  </button>
+                  <button className="normal-button" onClick={createNewChat} title={t('New Chat')}>
+                    {t('New Chat')}
+                  </button>
+                  <button
+                    className="normal-button"
+                    onClick={exportConversations}
+                    title={t('Export')}
+                  >
+                    {t('Export')}
+                  </button>
+                  <button
+                    className="normal-button"
+                    onClick={toggleSidebarVisibility}
+                    title={t('Hide Sidebar')}
+                  >
+                    {t('Hide')}
+                  </button>
+                </div>
+                <hr style={{ margin: '0 10px' }} />
+                <div
+                  className="chat-list"
+                  style={{
+                    flex: 1,
+                    overflowY: 'auto',
+                    padding: '0 10px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                  }}
+                >
+                  {sessions.map((session, index) => (
+                    <button
+                      key={index}
+                      className={`normal-button ${
+                        currentSessionId === session.sessionId ? 'active' : ''
+                      }`}
+                      style={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'space-between',
+                        textAlign: 'left',
+                        padding: '8px',
+                        fontSize: sidebarCollapsed ? '10px' : '14px',
+                      }}
+                      onClick={() => switchSession(session.sessionId)}
+                    >
+                      <span
+                        style={{
+                          overflow: 'hidden',
+                          textOverflow: 'ellipsis',
+                          whiteSpace: 'nowrap',
+                        }}
+                      >
+                        {sidebarCollapsed ? `${index + 1}` : session.sessionName}
+                      </span>
+                      {!sidebarCollapsed && (
+                        <span className="gpt-util-group">
+                          <DeleteButton
+                            size={14}
+                            text={t('Delete Conversation')}
+                            onConfirm={() => deleteSessionHandler(session.sessionId)}
+                          />
+                        </span>
+                      )}
+                    </button>
+                  ))}
+                </div>
+                <hr style={{ margin: '0 10px' }} />
+                <div
+                  className="chat-sidebar-button-group"
+                  style={{ padding: '10px', display: 'flex', flexDirection: 'column', gap: '10px' }}
+                >
+                  <ConfirmButton text={t('Clear conversations')} onConfirm={clearConversations} />
+                  <button
+                    className="normal-button"
+                    onClick={() => {
+                      Browser.runtime.getURL('popup.html')
+                      window.open(Browser.runtime.getURL('popup.html'))
+                    }}
+                  >
+                    {t('Settings')}
+                  </button>
+                </div>
+              </div>
+            )}
             <div
               className="chatgptbox-container"
               style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
             >
+              {!sidebarVisible && (
+                <div className="chatgptbox-hidden-sidebar-banner">
+                  <button
+                    className="normal-button chatgptbox-sidebar-toggle-button"
+                    type="button"
+                    onClick={toggleSidebarVisibility}
+                    title={t('Show Sidebar')}
+                  >
+                    {t('Show Sidebar')}
+                  </button>
+                </div>
+              )}
               <ConversationCard
-                session={props.session}
+                session={currentSession || props.session}
                 question={prompt}
                 draggable={true}
                 closeable={closeable}

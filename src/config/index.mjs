@@ -503,6 +503,7 @@ export const defaultConfig = {
 
   // sidebar visibility
   independentPanelSidebarVisible: true,
+  floatingWindowSidebarVisible: true,
   siteSidebarVisible: true,
 
   apiKey: '', // openai ApiKey
