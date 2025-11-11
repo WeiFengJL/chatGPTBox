@@ -114,8 +114,8 @@
   .chat-sidebar-toggle {
     display: flex;
     align-items: center;
-    gap: 12px;
-    padding: 12px 16px;
+    gap: 8px;
+    padding: 8px 12px;
     border-bottom: 1px solid var(--theme-border-color);
     background-color: var(--theme-color);
   }
@@ -123,9 +123,20 @@
   .show-sidebar-button {
     min-width: auto;
     width: auto;
-    padding: 8px 14px;
-    font-size: 13px;
+    padding: 4px 8px;
+    font-size: 12px;
     white-space: nowrap;
+    opacity: 0.7;
+    border-color: var(--theme-border-color);
+    background-color: var(--theme-color);
+    color: var(--font-color);
+    border-radius: 3px;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+  }
+
+  .show-sidebar-button:hover {
+    opacity: 1;
+    background-color: var(--active-color);
   }
 
   .normal-button {
@@ -143,6 +154,23 @@
     overflow: hidden;
   }
 
+  .hide-sidebar-button {
+    min-height: 32px;
+    padding: 2px 6px;
+    font-size: 12px;
+    opacity: 0.6;
+    border-color: var(--theme-border-color);
+    background-color: var(--theme-color);
+    color: var(--font-color);
+    border-radius: 3px;
+    transition: opacity 0.2s ease, background-color 0.2s ease;
+  }
+
+  .hide-sidebar-button:hover {
+    opacity: 0.9;
+    background-color: var(--active-color);
+  }
+
   .gpt-util-group {
     display: flex;
     gap: 15px;
@@ -154,8 +182,11 @@
     cursor: pointer;
     align-items: center;
     color: var(--font-color);
+    opacity: 0.6;
+    transition: opacity 0.2s ease, color 0.2s ease;
   }
   .gpt-util-icon:hover {
+    opacity: 0.9;
     color: var(--font-active-color);
   }
 

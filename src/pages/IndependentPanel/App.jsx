@@ -134,7 +134,7 @@ function App() {
                 {t('Export')}
               </button>
               <button
-                className="normal-button"
+                className="hide-sidebar-button"
                 onClick={toggleSidebarVisibility}
                 title={t('Hide Sidebar')}
               >
@@ -193,7 +193,7 @@ function App() {
               {!sidebarVisible && (
                 <div className="chat-sidebar-toggle">
                   <button
-                    className="normal-button show-sidebar-button"
+                    className="show-sidebar-button"
                     onClick={toggleSidebarVisibility}
                     title={t('Show Sidebar')}
                   >
