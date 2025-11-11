@@ -103,13 +103,17 @@ export function registerPortListener(executor) {
       const config = await getUserConfig()
       if (!session.modelName) session.modelName = config.modelName
       if (!session.apiMode) session.apiMode = config.apiMode
-      if (!session.aiName)
+      if (!session.aiName) {
+        // Extract custom model name from apiMode if available, otherwise use config.customModelName
+        const customModelName =
+          session.apiMode?.modelId || session.apiMode?.customName || config.customModelName
         session.aiName = modelNameToDesc(
           session.apiMode ? apiModeToModelName(session.apiMode) : session.modelName,
           t,
-          config.customModelName,
+          customModelName,
           session.apiMode,
         )
+      }
       port.postMessage({ session })
       try {
         await executor(session, port, config)
