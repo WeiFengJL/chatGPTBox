@@ -561,7 +561,6 @@ export const defaultConfig = {
     'claude2WebFree',
     'moonshotWebFree',
     'ollamaModel',
-    'customModel',
     'azureOpenAi',
     'openRouter_anthropic_claude_sonnet4_5',
     'openRouter_google_gemini_2_5_pro',

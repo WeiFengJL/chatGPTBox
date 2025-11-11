@@ -13,7 +13,6 @@ import {
   isUsingAzureOpenAiApiModel,
   isUsingChatGLMApiModel,
   isUsingClaudeApiModel,
-  isUsingCustomModel,
   isUsingOllamaApiModel,
   isUsingGithubThirdPartyApiModel,
   isUsingMultiModeModel,
@@ -21,7 +20,6 @@ import {
   ThemeMode,
   TriggerMode,
   isUsingMoonshotApiModel,
-  Models,
   isUsingOpenRouterApiModel,
   isUsingAimlApiModel,
   isUsingDeepSeekApiModel,
@@ -89,10 +87,6 @@ async function checkBilling(apiKey, apiUrl) {
     console.error(error)
     return [null, null, null]
   }
-}
-
-function isUsingSpecialCustomModel(configOrSession) {
-  return isUsingCustomModel(configOrSession) && !configOrSession.apiMode
 }
 
 export function GeneralPart({ config, updateConfig, setTabIndex }) {
@@ -180,7 +174,6 @@ export function GeneralPart({ config, updateConfig, setTabIndex }) {
             style={
               isUsingOpenAiApiModel(config) ||
               isUsingMultiModeModel(config) ||
-              isUsingSpecialCustomModel(config) ||
               isUsingAzureOpenAiApiModel(config) ||
               isUsingClaudeApiModel(config) ||
               isUsingMoonshotApiModel(config)
@@ -189,10 +182,6 @@ export function GeneralPart({ config, updateConfig, setTabIndex }) {
             }
             required
             onChange={(e) => {
-              if (e.target.value === '-1') {
-                updateConfig({ modelName: 'customModel', apiMode: null })
-                return
-              }
               const apiMode = apiModes[e.target.value]
               updateConfig({ apiMode: apiMode })
             }}
@@ -208,9 +197,6 @@ export function GeneralPart({ config, updateConfig, setTabIndex }) {
                 )
               }
             })}
-            <option value={-1} selected={!config.apiMode && config.modelName === 'customModel'}>
-              {t(Models.customModel.desc)}
-            </option>
           </select>
           {isUsingMultiModeModel(config) && (
             <select
@@ -261,18 +247,6 @@ export function GeneralPart({ config, updateConfig, setTabIndex }) {
                 </button>
               )}
             </span>
-          )}
-          {isUsingSpecialCustomModel(config) && (
-            <input
-              style="width: 50%;"
-              type="text"
-              value={config.customModelName}
-              placeholder={t('Model Name')}
-              onChange={(e) => {
-                const customModelName = e.target.value
-                updateConfig({ customModelName: customModelName })
-              }}
-            />
           )}
           {isUsingAzureOpenAiApiModel(config) && (
             <input
@@ -334,28 +308,6 @@ export function GeneralPart({ config, updateConfig, setTabIndex }) {
             </span>
           )}
         </span>
-        {isUsingSpecialCustomModel(config) && (
-          <input
-            type="text"
-            value={config.customModelApiUrl}
-            placeholder={t('Custom Model API Url')}
-            onChange={(e) => {
-              const value = e.target.value
-              updateConfig({ customModelApiUrl: value })
-            }}
-          />
-        )}
-        {isUsingSpecialCustomModel(config) && (
-          <input
-            type="password"
-            value={config.customApiKey}
-            placeholder={t('API Key')}
-            onChange={(e) => {
-              const apiKey = e.target.value
-              updateConfig({ customApiKey: apiKey })
-            }}
-          />
-        )}
         {isUsingOllamaApiModel(config) && (
           <div style={{ display: 'flex', gap: '10px' }}>
             {t('Keep-Alive Time') + ':'}
