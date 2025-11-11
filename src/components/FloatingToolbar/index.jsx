@@ -295,11 +295,10 @@ function FloatingToolbar(props) {
               style={{ flex: 1, display: 'flex', flexDirection: 'column' }}
             >
               {!sidebarVisible && (
-                <div
-                  style={{ padding: '10px', borderBottom: '1px solid var(--theme-border-color)' }}
-                >
+                <div className="chatgptbox-hidden-sidebar-banner">
                   <button
-                    className="normal-button"
+                    className="normal-button chatgptbox-sidebar-toggle-button"
+                    type="button"
                     onClick={toggleSidebarVisibility}
                     title={t('Show Sidebar')}
                   >

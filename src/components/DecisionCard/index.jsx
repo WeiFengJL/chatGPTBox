@@ -86,30 +86,16 @@ function DecisionCard(props) {
     render && (
       <div data-theme={config.themeMode} style={{ position: 'relative' }}>
         {!visible && (
-          <div
-            className="show-chatgptbox-button"
-            style={{
-              position: 'fixed',
-              top: '20px',
-              right: '20px',
-              zIndex: 10000,
-              backgroundColor: 'var(--theme-color)',
-              border: '1px solid var(--theme-border-color)',
-              borderRadius: '5px',
-              padding: '10px',
-              cursor: 'pointer',
-              color: 'var(--font-color)',
-              fontSize: '14px',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '5px',
-              boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-            }}
-            onClick={toggleVisibility}
-            title={t('Show Sidebar')}
-          >
-            <LightBulbIcon size={16} />
-            {t('Show Sidebar')}
+          <div className="chatgptbox-sidebar-toggle-placeholder">
+            <button
+              className="chatgptbox-sidebar-toggle-button"
+              type="button"
+              onClick={toggleVisibility}
+              title={t('Show Sidebar')}
+            >
+              <LightBulbIcon size={16} />
+              <span>{t('Show Sidebar')}</span>
+            </button>
           </div>
         )}
         {visible && (
