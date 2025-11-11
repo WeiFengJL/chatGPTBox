@@ -191,7 +191,7 @@ function App() {
           {renderContent && currentSession && currentSession.conversationRecords && (
             <div className="chatgptbox-container" style="height:100%;">
               {!sidebarVisible && (
-                <div className="show-sidebar-button-container">
+                <div className="chat-sidebar-toggle">
                   <button
                     className="normal-button show-sidebar-button"
                     onClick={toggleSidebarVisibility}
