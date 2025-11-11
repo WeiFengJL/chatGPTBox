@@ -20,6 +20,7 @@ import {
   getApiModesStringArrayFromConfig,
   getClientPosition,
   getPossibleElementByQuerySelector,
+  apiModeToModelName,
 } from '../utils'
 import FloatingToolbar from '../components/FloatingToolbar'
 import Browser from 'webextension-polyfill'
@@ -98,7 +99,9 @@ async function mountComponent(siteName, siteConfig) {
     render(
       <FloatingToolbar
         session={initSession({
-          modelName: userConfig.modelName,
+          modelName: userConfig.apiMode
+            ? apiModeToModelName(userConfig.apiMode)
+            : userConfig.modelName,
           apiMode: userConfig.apiMode,
           extraCustomModelName: userConfig.customModelName,
         })}
@@ -121,7 +124,9 @@ async function mountComponent(siteName, siteConfig) {
   render(
     <DecisionCard
       session={initSession({
-        modelName: userConfig.modelName,
+        modelName: userConfig.apiMode
+          ? apiModeToModelName(userConfig.apiMode)
+          : userConfig.modelName,
         apiMode: userConfig.apiMode,
         extraCustomModelName: userConfig.customModelName,
       })}
@@ -172,7 +177,9 @@ const createSelectionTools = async (toolbarContainer, selection) => {
   render(
     <FloatingToolbar
       session={initSession({
-        modelName: userConfig.modelName,
+        modelName: userConfig.apiMode
+          ? apiModeToModelName(userConfig.apiMode)
+          : userConfig.modelName,
         apiMode: userConfig.apiMode,
         extraCustomModelName: userConfig.customModelName,
       })}
