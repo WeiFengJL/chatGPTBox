@@ -108,6 +108,7 @@ export function registerPortListener(executor) {
           session.apiMode ? apiModeToModelName(session.apiMode) : session.modelName,
           t,
           config.customModelName,
+          session.apiMode,
         )
       port.postMessage({ session })
       try {

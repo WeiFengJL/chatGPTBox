@@ -394,6 +394,7 @@ function ConversationCard(props) {
                   apiMode ? apiModeToModelName(apiMode) : modelName,
                   t,
                   config.customModelName,
+                  apiMode,
                 ),
               }
               if (config.autoRegenAfterSwitchModel && conversationItemData.length > 0)
@@ -403,7 +404,7 @@ function ConversationCard(props) {
           >
             {apiModes.map((apiMode, index) => {
               const modelName = apiModeToModelName(apiMode)
-              const desc = modelNameToDesc(modelName, t, config.customModelName)
+              const desc = modelNameToDesc(modelName, t, config.customModelName, apiMode)
               if (desc) {
                 return (
                   <option value={index} key={index} selected={isApiModeSelected(apiMode, session)}>

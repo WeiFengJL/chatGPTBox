@@ -65,6 +65,7 @@ export function initSession({
             apiMode ? apiModeToModelName(apiMode) : modelName,
             t,
             extraCustomModelName,
+            apiMode,
           )
         : null,
     modelName,

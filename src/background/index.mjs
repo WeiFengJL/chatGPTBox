@@ -102,7 +102,7 @@ async function executeApi(session, port, config) {
           config.customModelApiUrl.trim() ||
           'http://localhost:8000/v1/chat/completions',
         session.apiMode.apiKey.trim() || config.customApiKey,
-        session.apiMode.customName,
+        session.apiMode.modelId || session.apiMode.customName,
       )
   } else if (isUsingChatgptWebModel(session)) {
     let tabId
