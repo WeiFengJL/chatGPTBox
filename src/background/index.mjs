@@ -84,26 +84,16 @@ async function executeApi(session, port, config) {
   console.debug('modelName', session.modelName)
   console.debug('apiMode', session.apiMode)
   if (isUsingCustomModel(session)) {
-    if (!session.apiMode)
-      await generateAnswersWithCustomApi(
-        port,
-        session.question,
-        session,
-        config.customModelApiUrl.trim() || 'http://localhost:8000/v1/chat/completions',
-        config.customApiKey,
-        config.customModelName,
-      )
-    else
-      await generateAnswersWithCustomApi(
-        port,
-        session.question,
-        session,
-        session.apiMode.customUrl.trim() ||
-          config.customModelApiUrl.trim() ||
-          'http://localhost:8000/v1/chat/completions',
-        session.apiMode.apiKey.trim() || config.customApiKey,
-        session.apiMode.modelId || session.apiMode.customName,
-      )
+    await generateAnswersWithCustomApi(
+      port,
+      session.question,
+      session,
+      session.apiMode.customUrl.trim() ||
+        config.customModelApiUrl.trim() ||
+        'http://localhost:8000/v1/chat/completions',
+      session.apiMode.apiKey.trim() || config.customApiKey,
+      session.apiMode.modelId || session.apiMode.customName,
+    )
   } else if (isUsingChatgptWebModel(session)) {
     let tabId
     if (

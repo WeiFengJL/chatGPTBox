@@ -39,12 +39,10 @@ export function ApiModes({ config, updateConfig }) {
   const [editingApiMode, setEditingApiMode] = useState(defaultApiMode)
   const [editingIndex, setEditingIndex] = useState(-1)
   const [apiModes, setApiModes] = useState([])
-  const [apiModeStringArray, setApiModeStringArray] = useState([])
 
   useLayoutEffect(() => {
     const apiModes = getApiModesFromConfig(config)
     setApiModes(apiModes)
-    setApiModeStringArray(apiModes.map(apiModeToModelName))
   }, [
     config.activeApiModes,
     config.customApiModes,
@@ -55,11 +53,6 @@ export function ApiModes({ config, updateConfig }) {
   const updateWhenApiModeDisabled = (apiMode) => {
     if (isApiModeSelected(apiMode, config))
       updateConfig({
-        modelName:
-          apiModeStringArray.includes(config.modelName) &&
-          config.modelName !== apiModeToModelName(apiMode)
-            ? config.modelName
-            : 'customModel',
         apiMode: null,
       })
   }
