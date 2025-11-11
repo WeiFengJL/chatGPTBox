@@ -1,6 +1,6 @@
 import { AlwaysCustomGroups, ModelGroups, ModelMode, Models } from '../config/index.mjs'
 
-export function modelNameToDesc(modelName, t, extraCustomModelName = '') {
+export function modelNameToDesc(modelName, t, extraCustomModelName = '', apiMode = null) {
   if (!t) t = (x) => x
   if (modelName in Models) {
     const desc = t(Models[modelName].desc)
@@ -13,6 +13,12 @@ export function modelNameToDesc(modelName, t, extraCustomModelName = '') {
   if (isCustomModelName(modelName)) {
     const presetPart = modelNameToPresetPart(modelName)
     const customPart = modelNameToCustomPart(modelName)
+
+    // If we have apiMode with new custom fields, use the new format
+    if (apiMode && apiMode.customServiceName && apiMode.displayName) {
+      return `${apiMode.customServiceName}(${apiMode.displayName})`
+    }
+
     if (presetPart in Models) {
       if (customPart in ModelMode)
         desc = `${t(Models[presetPart].desc)} (${t(ModelMode[customPart])})`
@@ -70,6 +76,9 @@ export function modelNameToApiMode(modelName) {
       itemName: presetPart,
       isCustom,
       customName,
+      customServiceName: '',
+      modelId: customName,
+      displayName: '',
       customUrl: '',
       apiKey: '',
       active: true,
@@ -79,18 +88,38 @@ export function modelNameToApiMode(modelName) {
 
 export function apiModeToModelName(apiMode) {
   if (AlwaysCustomGroups.includes(apiMode.groupName))
-    return apiMode.groupName + '-' + apiMode.customName
+    return apiMode.groupName + '-' + (apiMode.modelId || apiMode.customName)
 
   if (apiMode.isCustom) {
-    if (apiMode.itemName === 'custom') return apiMode.groupName + '-' + apiMode.customName
-    return apiMode.itemName + '-' + apiMode.customName
+    if (apiMode.itemName === 'custom')
+      return apiMode.groupName + '-' + (apiMode.modelId || apiMode.customName)
+    return apiMode.itemName + '-' + (apiMode.modelId || apiMode.customName)
   }
 
   return apiMode.itemName
 }
 
 export function getApiModesFromConfig(config, onlyActive) {
-  const stringApiModes = config.customApiModes
+  // Migrate old customApiModes to new structure
+  const migratedCustomApiModes = config.customApiModes.map((apiMode) => {
+    // If new fields are not present but old customName exists, migrate
+    if (
+      apiMode.customName &&
+      !apiMode.modelId &&
+      !apiMode.customServiceName &&
+      !apiMode.displayName
+    ) {
+      return {
+        ...apiMode,
+        modelId: apiMode.customName,
+        customServiceName: '',
+        displayName: '',
+      }
+    }
+    return apiMode
+  })
+
+  const stringApiModes = migratedCustomApiModes
     .map((apiMode) => {
       if (onlyActive) {
         if (apiMode.active) return apiModeToModelName(apiMode)
@@ -111,7 +140,7 @@ export function getApiModesFromConfig(config, onlyActive) {
     .filter((apiMode) => apiMode)
   return [
     ...originalApiModes,
-    ...config.customApiModes.filter((apiMode) => (onlyActive ? apiMode.active : true)),
+    ...migratedCustomApiModes.filter((apiMode) => (onlyActive ? apiMode.active : true)),
   ]
 }
 

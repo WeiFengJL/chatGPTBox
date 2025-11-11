@@ -42,6 +42,7 @@ export async function cropText(
     userConfig.apiMode ? apiModeToModelName(userConfig.apiMode) : userConfig.modelName,
     null,
     userConfig.customModelName,
+    userConfig.apiMode,
   ).match(/[- (]*([0-9]+)k/)?.[1]
   if (k) {
     maxLength = Number(k) * 1000

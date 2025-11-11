@@ -25,6 +25,9 @@ const defaultApiMode = {
   itemName: 'chatgptFree35',
   isCustom: false,
   customName: '',
+  customServiceName: '',
+  modelId: '',
+  displayName: '',
   customUrl: 'http://localhost:8000/v1/chat/completions',
   apiKey: '',
   active: true,
@@ -133,12 +136,30 @@ export function ApiModes({ config, updateConfig }) {
           )}
         </select>
         {(editingApiMode.isCustom || AlwaysCustomGroups.includes(editingApiMode.groupName)) && (
-          <input
-            type="text"
-            value={editingApiMode.customName}
-            placeholder={t('Model Name')}
-            onChange={(e) => setEditingApiMode({ ...editingApiMode, customName: e.target.value })}
-          />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '4px' }}>
+            <input
+              type="text"
+              value={editingApiMode.customServiceName}
+              placeholder={t('Service Name')}
+              onChange={(e) =>
+                setEditingApiMode({ ...editingApiMode, customServiceName: e.target.value })
+              }
+            />
+            <input
+              type="text"
+              value={editingApiMode.modelId}
+              placeholder={t('Model ID')}
+              onChange={(e) => setEditingApiMode({ ...editingApiMode, modelId: e.target.value })}
+            />
+            <input
+              type="text"
+              value={editingApiMode.displayName}
+              placeholder={t('Display Name')}
+              onChange={(e) =>
+                setEditingApiMode({ ...editingApiMode, displayName: e.target.value })
+              }
+            />
+          </div>
         )}
       </div>
       {CustomUrlGroups.includes(editingApiMode.groupName) &&
@@ -182,7 +203,7 @@ export function ApiModes({ config, updateConfig }) {
                   updateConfig({ activeApiModes: [], customApiModes })
                 }}
               />
-              {modelNameToDesc(apiModeToModelName(apiMode), t)}
+              {modelNameToDesc(apiModeToModelName(apiMode), t, '', apiMode)}
               <div style={{ flexGrow: 1 }} />
               <div style={{ display: 'flex', gap: '12px' }}>
                 <div
