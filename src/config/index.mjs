@@ -501,6 +501,11 @@ export const defaultConfig = {
   alwaysPinWindow: false,
   focusAfterAnswer: true,
 
+  // sidebar visibility
+  independentPanelSidebarVisible: true,
+  floatingWindowSidebarVisible: true,
+  siteSidebarVisible: true,
+
   apiKey: '', // openai ApiKey
 
   azureApiKey: '',
